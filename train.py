@@ -50,12 +50,19 @@ def main():
     
 
     # TODO: Add transform function later
-    train_dataset = BeatPD_Dataset(train_folder, train_labels)
+
+    def transform(timeseries):
+        return timeseries.reshape(timeseries.shape[0], 200, 300)
+
+    train_dataset = BeatPD_Dataset(train_folder, 
+                                   train_labels,
+                                   transform
+                                )
     train_dataloader = DataLoader(
         train_dataset, **train_data_config['loader']
     )
 
-    val_dataset = BeatPD_Dataset(val_folder, val_labels)
+    val_dataset = BeatPD_Dataset(val_folder, val_labels, transform)
     val_dataloader = DataLoader(
         val_dataset, **val_data_config['loader']
     )
