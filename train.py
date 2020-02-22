@@ -106,7 +106,7 @@ def main():
     trainer.add_callback('on_epoch_end', evaluate)
 
     # Start fitting model
-    trainer.fit(train_dataloader)
+    trainer.fit(train_dataloader, num_epochs=args['num_epochs'])
 
 if __name__ == '__main__':
     main()
