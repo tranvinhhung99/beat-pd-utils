@@ -11,7 +11,8 @@ class BeatPD_Dataset(Dataset):
     def __init__(self, data_folder: str, 
                  label_data: pd.DataFrame,
                  transforms=None,
-                 target_transforms=None
+                 target_transforms=None,
+                 interpolate=False
                  ):
         ''' Dataset class for Beat-PD challenge
         
@@ -29,6 +30,7 @@ class BeatPD_Dataset(Dataset):
         self.transforms = transforms
         self.target_transforms = target_transforms
 
+        self.interpolate = interpolate
         ## 
         self.key_list = ['on_off', 'dyskinesia', 'tremor']
 
@@ -38,7 +40,7 @@ class BeatPD_Dataset(Dataset):
         raw_data_path = os.path.join(self.data_folder, sample_label_data.measurement_id + 'csv')
         raw_data = pd.read_csv(raw_data_path)
 
-        raw_timeseries = convert_raw_to_timeseries(raw_data)
+        raw_timeseries = convert_raw_to_timeseries(raw_data, self.interpolate)
         targets = torch.tensor([raw_data[k] for k in self.key_list])
         
         return raw_timeseries, targets

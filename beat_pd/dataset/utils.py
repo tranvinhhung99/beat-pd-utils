@@ -16,17 +16,19 @@ def interpolate_series(data,
     end: End index
     resolution: precision of linear interpolate
     """
-    df = raw_data
+    df = data
     df['Timestamp'] = np.array(np.round(df['Timestamp'] / (timestamp_step / resolution)), dtype=int)
 
-    new_timestamp = np.arange(start * resolution, end * resolution, 1)
+    new_timestamp = np.arange(start * resolution, end * resolution, 1, dtype=int)
 
+    # drop duplicated
+    final = df[np.bitwise_not(df.duplicated('Timestamp', keep='last'))]
 
     # resample and interpolate
-    final = df.set_index("Timestamp").reindex(new_timestamp).interpolate().reset_index()
+    final = final.set_index("Timestamp").reindex(new_timestamp).interpolate().reset_index()
     final = final[final.Timestamp % resolution == 0] 
 
-    # Normalize for other function
+    # Normalize for other function    print(len(new_timestamp))
     final.Timestamp *= (timestamp_step / resolution)
     final.index //= resolution
     return final
@@ -35,7 +37,7 @@ def convert_raw_to_timeseries(raw_data: pd.DataFrame, interpolate=True) -> torch
     # Take xyz raw data and convert to signal
     data = raw_data
     if interpolate:
-        data = interpolate_data(data)
+        data = interpolate_series(data)
     
     return torch.tensor([data.X, data.Y, data.Z])
     
