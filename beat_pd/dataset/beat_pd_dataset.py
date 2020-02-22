@@ -37,7 +37,8 @@ class BeatPD_Dataset(Dataset):
     def get_sample(self, i: int):
         sample_label_data = self.label_data.iloc[i]
         
-        raw_data_path = os.path.join(self.data_folder, sample_label_data.measurement_id + 'csv')
+        raw_file_name = sample_label_data.measurement_id + '.csv'
+        raw_data_path = os.path.join(self.data_folder, raw_file_name)
         raw_data = pd.read_csv(raw_data_path)
 
         raw_timeseries = convert_raw_to_timeseries(raw_data, self.interpolate)
