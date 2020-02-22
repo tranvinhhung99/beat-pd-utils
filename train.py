@@ -1,6 +1,9 @@
 import random
 random.seed(1) # Delete random
 
+import logging
+logger = logging.getLogger(__name__)
+
 import torch
 from torch import nn
 from torch.nn import functional as F
@@ -94,9 +97,7 @@ def main():
     trainer.add_callback('on_epoch_end', evaluate)
 
     # Start fitting model
-    print("Start training")
     trainer.fit(train_dataloader)
 
-
-
-
+if __name__ == '__main__':
+    main()
