@@ -1,0 +1,31 @@
+train_data:
+  data_folder: null
+  label_folder: null
+  interpolate: null
+
+model:
+  # Support Model Type: MobileNetV2
+  type: mobilenet_v2
+  package: torchvision.models
+  kwargs:
+    pretrain: true
+    num_classes: 3
+
+optim:
+  type: Adam
+  package: torch.optim
+  lr: 1e-4
+
+
+data:
+  train_data:
+    data_folder:
+    label_path:
+    
+    loader: #kwargs for dataloader
+      batch_size: 16
+  
+  ptrain: 0.8
+
+
+use_cuda: True
