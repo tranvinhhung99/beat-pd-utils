@@ -22,6 +22,7 @@ class Trainer(Engine):
         self.cache = {} # Used for everyone
 
     def train_batch(self, train_iter, info={}):
+        # Training one batch logic
         X, y = train_iter.next()
         
         X = X.to(self.device)

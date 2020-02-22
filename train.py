@@ -78,7 +78,7 @@ def main():
     # Using basic loss function
     NORM = 5
     def loss_func(y_hat, y):
-        prob = F.sigmoid(y_hat)
+        prob = torch.sigmoid(y_hat)
         prob = NORM * prob
         y = y.float()
         return F.mse_loss(prob, y)
@@ -96,9 +96,7 @@ def main():
                 x = x.to(device)
 
                 y_hat = model(x)
-                prob = F.sigmoid(y_hat)
-                prob = NORM * prob
-                loss += F.mse_loss(prob, y).item()
+                loss += loss_func(y_hat, y)
             
             epoch = kwargs['epoch']
             print(f"Epoch: {epoch} - val_loss: {loss}")
