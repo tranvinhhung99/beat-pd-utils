@@ -94,6 +94,7 @@ def main():
     trainer.add_callback('on_epoch_end', evaluate)
 
     # Start fitting model
+    print("Start training")
     trainer.fit(train_dataloader)
 
 
