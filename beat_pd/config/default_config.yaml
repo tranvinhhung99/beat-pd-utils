@@ -1,22 +1,20 @@
-train_data:
-  data_folder: null
-  label_folder: null
-  interpolate: null
 
+# Config for model
 model:
-  # Support Model Type: MobileNetV2
   type: mobilenet_v2
   package: torchvision.models
   kwargs:
     pretrain: true
     num_classes: 3
 
+# Config for optimizer
 optim:
   type: Adam
   package: torch.optim
   lr: 1e-4
 
 
+# Config for data
 data:
   train_data:
     data_folder:
@@ -25,7 +23,7 @@ data:
     loader: #kwargs for dataloader
       batch_size: 16
   
-  ptrain: 0.8
+  ptrain: 0.8 # Percent to split train when val_data=null
 
 
-use_cuda: True
+device: cuda
