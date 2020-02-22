@@ -70,6 +70,7 @@ def main():
     # Get Model instance
     model = get_model_instance(args['model'])
     device = args.get('device', 'cpu')
+    model.to(device)
 
     # Get optimizer
     optim = get_optimizer(model, args['optim'])
