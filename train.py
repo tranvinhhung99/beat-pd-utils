@@ -80,7 +80,7 @@ def main():
     def loss_func(y_hat, y):
         prob = F.sigmoid(y_hat)
         prob = NORM * prob
-        y = y.type(torch.FloatTensor)
+        y = y.float()
         return F.mse_loss(prob, y)
 
     # Create trainer instance
