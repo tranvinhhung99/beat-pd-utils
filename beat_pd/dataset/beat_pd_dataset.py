@@ -42,7 +42,7 @@ class BeatPD_Dataset(Dataset):
         raw_data = pd.read_csv(raw_data_path)
 
         raw_timeseries = convert_raw_to_timeseries(raw_data, self.interpolate)
-        targets = torch.tensor([raw_data[k] for k in self.key_list])
+        targets = torch.tensor([sample_label_data[k] for k in self.key_list])
         
         return raw_timeseries, targets
 
