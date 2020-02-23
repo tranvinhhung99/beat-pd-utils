@@ -24,27 +24,8 @@ from beat_pd.engine import Trainer, Evaluator
 
 from beat_pd.engine.callbacks import LoggerCallback, TensorboardCallback
 
-
-def main():
-    timestamp = str(time.time())
-    ## Get training arguments
-    parser = argparse.ArgumentParser("Training script")
-    parser.add_argument("--config_path", help="Path to config file .yaml", 
-                        default="beat_pd/config/default_config.yaml")
-
-    parser.add_argument("--stratify_key", default='on_off')
-
-    parser.add_argument('--log_dir', default='logs/', help='Log file dirs. Default: logs/')
-    parser.add_argument('--run_name', default=timestamp, help='Name of the current run. Default: timestamp')
-
-    args = parser.parse_args()
-    args = vars(args)
-
-    args = parse_args(args['config_path'], args)
-
-    run_folder = os.path.join(args['log_dir'], args['run_name'])
-    os.makedirs(run_folder, exist_ok=True)
-    ## Load data
+def load_data(args):
+    ## Load data from args
     train_data_config = args['data']['train_data']
     train_labels = pd.read_csv(train_data_config['label_path'])
     train_folder = train_data_config['data_folder']
@@ -80,6 +61,31 @@ def main():
     val_dataloader = DataLoader(
         val_dataset, **val_data_config['loader']
     )
+
+    return train_dataloader, val_dataloader
+
+
+def main():
+    timestamp = str(time.time())
+    ## Get training arguments
+    parser = argparse.ArgumentParser("Training script")
+    parser.add_argument("--config_path", help="Path to config file .yaml", 
+                        default="beat_pd/config/default_config.yaml")
+
+    parser.add_argument("--stratify_key", default='on_off')
+
+    parser.add_argument('--log_dir', default='logs/', help='Log file dirs. Default: logs/')
+    parser.add_argument('--run_name', default=timestamp, help='Name of the current run. Default: timestamp')
+
+    args = parser.parse_args()
+    args = vars(args)
+
+    args = parse_args(args['config_path'], args)
+
+    run_folder = os.path.join(args['log_dir'], args['run_name'])
+    os.makedirs(run_folder, exist_ok=True)
+
+    train_dataloader, val_dataloader = load_data(args)
 
     # Get Model instance
     model = get_model_instance(args['model'])
