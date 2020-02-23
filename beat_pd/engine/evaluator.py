@@ -48,7 +48,7 @@ class Evaluator(Engine):
                     y_hat = y_hat.cpu()
 
                 # Stacking and store on RAM
-                if labels:
+                if labels is not None:
                     labels = torch.cat((labels, y))
                     predict = torch.cat((predict, y_hat))
                 else:
