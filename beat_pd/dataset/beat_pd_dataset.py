@@ -1,6 +1,7 @@
 from torch.utils.data import Dataset
 import pandas as pd
 import os
+import csv
 
 import numpy as np
 import torch
@@ -39,9 +40,20 @@ class BeatPD_Dataset(Dataset):
         
         raw_file_name = sample_label_data.measurement_id + '.csv'
         raw_data_path = os.path.join(self.data_folder, raw_file_name)
-        raw_data = pd.read_csv(raw_data_path)
+        if self.interpolate:
+            raw_data = pd.read_csv(raw_data_path)
+            raw_timeseries = convert_raw_to_timeseries(raw_data, self.interpolate)
+        else:
+            # Speed up when there is no need to self.interpolate
+            csv_data = csv.DictReader(open(raw_data_path))
+            x, y, z = [], [], []
+            for row in csv_data:
+                x.append(float(row['X']))
+                y.append(float(row['Y']))
+                z.append(float(row['Z']))
+            raw_timeseries = torch.tensor([x, y, z])
 
-        raw_timeseries = convert_raw_to_timeseries(raw_data, self.interpolate)
+
         targets = torch.tensor([sample_label_data[k] for k in self.key_list])
         
         return raw_timeseries, targets
