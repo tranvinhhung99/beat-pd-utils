@@ -1,0 +1,13 @@
+data:
+  ptrain: 0.8
+  train_data:
+    data_folder: /content/drive/My Drive/Beat-PD/CIS-PD/synthesis_data/training_data
+    label_path: /content/drive/My Drive/Beat-PD/CIS-PD/Data_Train_CIS-PD/data_labels/CIS-PD_Training_Data_IDs_Labels.csv
+    loader: {batch_size: 8, pin_memory: true}
+device: cuda
+model:
+  kwargs: {num_classes: 3, pretrained: false}
+  package: torchvision.models
+  type: mobilenet_v2
+num_epochs: 10
+optim: {lr: 1e-4, package: torch.optim, type: Adam}

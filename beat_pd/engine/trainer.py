@@ -1,10 +1,12 @@
 from typing import Callable
 from .engine import Engine
+import tqdm
 
 class Trainer(Engine):
     """ Warper class for training logic """
 
     def __init__(self, model, optimizer, loss_function, device='cuda'):
+        super(Trainer, self).__init__()
         self.model = model
         self.optimizer = optimizer
         self.loss_function = loss_function
@@ -48,8 +50,8 @@ class Trainer(Engine):
             self.model.train()
             
             train_iter = iter(train_dataloader)
-            for batch in range(num_batch):
-                info = {'batch': batch}
+            for batch in tqdm.tqdm(range(num_batch), desc=f'E: {epoch}'):
+                info = {'batch': batch, 'iteration': num_batch * epoch + batch}
                 self.fire_event('on_batch_start', **info)
                 info = self.train_batch(train_iter, info)
                 self.fire_event('on_batch_end', **info)

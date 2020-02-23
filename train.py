@@ -3,21 +3,30 @@ random.seed(1) # Delete random
 
 import logging
 logger = logging.getLogger(__name__)
+logging.basicConfig(format="\n%(name)s- %(msg)s",level=logging.INFO)
 
 import torch
 from torch import nn
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
+
+import time
 import argparse
+import os
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
 from beat_pd.utils import parse_args
 from beat_pd.dataset import BeatPD_Dataset
 from beat_pd.models.factory import get_model_instance, get_optimizer
-from beat_pd.engine import Trainer
+from beat_pd.engine import Trainer, Evaluator
+
+from beat_pd.engine.callbacks import LoggerCallback, TensorboardCallback
+
 
 def main():
+    timestamp = str(time.time())
     ## Get training arguments
     parser = argparse.ArgumentParser("Training script")
     parser.add_argument("--config_path", help="Path to config file .yaml", 
@@ -25,11 +34,16 @@ def main():
 
     parser.add_argument("--stratify_key", default='on_off')
 
+    parser.add_argument('--log_dir', default='logs/', help='Log file dirs. Default: logs/')
+    parser.add_argument('--run_name', default=timestamp, help='Name of the current run. Default: timestamp')
+
     args = parser.parse_args()
     args = vars(args)
 
     args = parse_args(args['config_path'], args)
 
+    run_folder = os.path.join(args['log_dir'], args['run_name'])
+    os.makedirs(run_folder, exist_ok=True)
     ## Load data
     train_data_config = args['data']['train_data']
     train_labels = pd.read_csv(train_data_config['label_path'])
@@ -85,21 +99,20 @@ def main():
 
     # Create trainer instance
     trainer = Trainer(model, optim, loss_func, device)
+    evaluator = Evaluator(model, {'loss': loss_func}, device)
 
-    def evaluate(*args, **kwargs):
-        with torch.no_grad():
-            model.eval()
-            loss = 0
-            # Loop through val dataset
-            for x, y in val_dataloader:
-                y = y.to(device)
-                x = x.to(device)
+    logger = logging.getLogger(timestamp)
+    evaluator.add_callback('on_eval_end', LoggerCallback(logger, step_key='epoch'))
+    trainer.add_callback('on_batch_end', LoggerCallback(logger))
 
-                y_hat = model(x)
-                loss += loss_func(y_hat, y)
-            
-            epoch = kwargs['epoch']
-            print(f"Epoch: {epoch} - val_loss: {loss}")
+    writer = SummaryWriter(log_dir=run_folder)
+    evaluator.add_callback('on_eval_end', TensorboardCallback(writer, tag='val/loss', step_key='epoch'))
+    trainer.add_callback('on_batch_end', TensorboardCallback(writer, tag='train/loss', step_key='iteration'))
+    
+
+    def evaluate(trainer, *args, **kwargs):
+        print() # End line after training for better reading
+        evaluator.evaluate(val_dataloader, **kwargs)
 
     trainer.add_callback('on_epoch_end', evaluate)
 
