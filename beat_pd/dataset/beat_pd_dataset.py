@@ -54,7 +54,7 @@ class BeatPD_Dataset(Dataset):
             raw_timeseries = torch.tensor([x, y, z])
 
 
-        targets = torch.tensor([sample_label_data[k] for k in self.key_list])
+        targets = torch.tensor([sample_label_data[k] for k in self.key_list], dtype=float)
         
         return raw_timeseries, targets
 
